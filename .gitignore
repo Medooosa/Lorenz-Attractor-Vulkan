@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+*.vsidx
+*.lock
+.vs/LorenzAttractor/v17/.suo
+*.db
+*.db-shm
+*.db-wal
+*.opendb
+*.ipch
+VulkanGenesis/x64/Debug/VulkanGenesis.tlog/unsuccessfulbuild
