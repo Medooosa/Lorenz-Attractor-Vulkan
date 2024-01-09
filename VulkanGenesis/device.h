@@ -35,9 +35,9 @@ namespace Lorenz {
 
 		// Not copyable or movable
 		LorenzDevice(const LorenzDevice&) = delete;
-		void operator=(const LorenzDevice&) = delete;
+		LorenzDevice &operator=(const LorenzDevice&) = delete;
 		LorenzDevice(LorenzDevice&&) = delete;
-		LorenzDevice& operator=(LorenzDevice&&) = delete;
+		LorenzDevice &operator=(LorenzDevice&&) = delete;
 
 		VkCommandPool getCommandPool() { return commandPool; }
 		VkDevice device() { return device_; }

@@ -4,6 +4,7 @@
 #include "pipeline.h"
 #include "device.h"
 #include "swap_chain.h"
+#include "model.h"
 
 // std
 #include <memory>
@@ -26,16 +27,21 @@ namespace Lorenz {
 		void run();
 
 	private:
+		void loadModels();
 		void createPipelineLayout();
 		void createPipeline();
 		void createCommandBuffers();
+		void freeCommandBuffers();
 		void drawFrame();
+		void recreateSwapChain();
+		void recordCommandBuffer(int imageIndex);
 
 		LorenzWindow lorenzWindow{ WIDTH, HEIGHT, "Hello World!" };
 		LorenzDevice lorenzDevice{ lorenzWindow };
-		LorenzSwapChain lorenzSwapChain{lorenzDevice, lorenzWindow.getExtent()};
+		std::unique_ptr<LorenzSwapChain> lorenzSwapChain;
 		std::unique_ptr<Pipeline> lorenzPipeline;
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
+		std::unique_ptr<Model> lorenzModel;
 	};
 }	// Namespace Lorenz

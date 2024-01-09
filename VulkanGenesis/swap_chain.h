@@ -8,6 +8,7 @@
 // std lib headers
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace Lorenz {
 
@@ -16,10 +17,11 @@ namespace Lorenz {
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 		LorenzSwapChain(LorenzDevice& deviceRef, VkExtent2D windowExtent);
+		LorenzSwapChain(LorenzDevice& deviceRef, VkExtent2D windowExtent, std::shared_ptr<LorenzSwapChain> previous);
 		~LorenzSwapChain();
 
 		LorenzSwapChain(const LorenzSwapChain&) = delete;
-		void operator=(const LorenzSwapChain&) = delete;
+		LorenzSwapChain &operator=(const LorenzSwapChain&) = delete;
 
 		VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
 		VkRenderPass getRenderPass() { return renderPass; }
@@ -39,6 +41,7 @@ namespace Lorenz {
 		VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
 
 	private:
+		void init();
 		void createSwapChain();
 		void createImageViews();
 		void createDepthResources();
@@ -69,6 +72,7 @@ namespace Lorenz {
 		VkExtent2D windowExtent;
 
 		VkSwapchainKHR swapChain;
+		std::shared_ptr<LorenzSwapChain> oldSwapChain;
 
 		std::vector<VkSemaphore> imageAvailableSemaphores;
 		std::vector<VkSemaphore> renderFinishedSemaphores;

@@ -4,8 +4,9 @@ namespace Lorenz {
 
 	Application::Application()
 	{
+		loadModels();
 		createPipelineLayout();
-		createPipeline();
+		recreateSwapChain();
 		createCommandBuffers();
 	}
 
@@ -21,6 +22,17 @@ namespace Lorenz {
 		}
 
 		vkDeviceWaitIdle(lorenzDevice.device());
+	}
+
+	void Application::loadModels()
+	{
+		std::vector<Model::Vertex> vertices
+		{
+			{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+			{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
+		lorenzModel = std::make_unique<Model>(lorenzDevice, vertices);
 	}
 
 	void Application::createPipelineLayout()
@@ -39,15 +51,46 @@ namespace Lorenz {
 
 	void Application::createPipeline()
 	{
-		auto pipelineConfig = Pipeline::defaultPipelineConfigInfo(lorenzSwapChain.width(), lorenzSwapChain.height());
-		pipelineConfig.renderPass = lorenzSwapChain.getRenderPass();
+		assert(lorenzSwapChain != nullptr && "Cannot create pipeline before swap chain");
+		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
+
+		PipelineConfigInfo pipelineConfig{};
+		Pipeline::defaultPipelineConfigInfo(pipelineConfig);
+		pipelineConfig.renderPass = lorenzSwapChain->getRenderPass();
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		lorenzPipeline = std::make_unique<Pipeline>(lorenzDevice, "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv", pipelineConfig);
 	}
 
+	void Application::recreateSwapChain()
+	{
+		auto extent = lorenzWindow.getExtent();
+		while (extent.width == 0 || extent.height == 0)
+		{
+			extent = lorenzWindow.getExtent();
+			glfwWaitEvents();
+		}
+
+		vkDeviceWaitIdle(lorenzDevice.device());
+
+		if (lorenzSwapChain == nullptr)
+		{		
+			lorenzSwapChain = std::make_unique<LorenzSwapChain>(lorenzDevice, extent);
+		}
+		else 
+		{
+			lorenzSwapChain = std::make_unique<LorenzSwapChain>(lorenzDevice, extent, std::move(lorenzSwapChain));
+			if (lorenzSwapChain->imageCount() != commandBuffers.size())
+			{
+				freeCommandBuffers(); 
+				createCommandBuffers();
+			}
+		}
+		createPipeline();
+	}
+
 	void Application::createCommandBuffers()
 	{
-		commandBuffers.resize(lorenzSwapChain.imageCount());
+		commandBuffers.resize(lorenzSwapChain->imageCount());
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -59,52 +102,83 @@ namespace Lorenz {
 		{
 			throw std::runtime_error("Failed to allocate command buffers");
 		}
-		for (int i = 0; i < commandBuffers.size(); i++)
+	}
+
+	void Application::freeCommandBuffers()
+	{
+		vkFreeCommandBuffers(lorenzDevice.device(), lorenzDevice.getCommandPool(), static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+		commandBuffers.clear();
+	}
+
+	void Application::recordCommandBuffer(int imageIndex)
+	{
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		if (vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo) != VK_SUCCESS)
 		{
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			throw std::runtime_error("Failed to begin recording command buffer");
+		}
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = lorenzSwapChain->getRenderPass();
+		renderPassInfo.framebuffer = lorenzSwapChain->getFrameBuffer(imageIndex);
 
-			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to begin recording command buffer");
-			}
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = lorenzSwapChain.getRenderPass();
-			renderPassInfo.framebuffer = lorenzSwapChain.getFrameBuffer(i);
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = lorenzSwapChain->getSwapChainExtent();
 
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = lorenzSwapChain.getSwapChainExtent();
+		std::array<VkClearValue, 2> clearValues{};
+		clearValues[0].color = { 0.1f, 0.1f, 0.1f, 0.1f };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = { 0.1f, 0.1f, 0.1f, 0.1f };
-			clearValues[1].depthStencil = { 1.0f, 0 };
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
+		vkCmdBeginRenderPass(commandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = static_cast<float>(lorenzSwapChain->getSwapChainExtent().width);
+		viewport.height = static_cast<float>(lorenzSwapChain->getSwapChainExtent().height);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		VkRect2D scissor{ {0, 0}, lorenzSwapChain->getSwapChainExtent() };
+		vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
+		vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
-			lorenzPipeline->bind(commandBuffers[i]);
-			vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
-			
-			vkCmdEndRenderPass(commandBuffers[i]);
-			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to record command buffer");
-			}
+		lorenzPipeline->bind(commandBuffers[imageIndex]);
+		lorenzModel->bind(commandBuffers[imageIndex]);
+		lorenzModel->draw(commandBuffers[imageIndex]);
+
+		vkCmdEndRenderPass(commandBuffers[imageIndex]);
+		if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to record command buffer");
 		}
 	}
 
 	void Application::drawFrame()
 	{
 		uint32_t imageIndex;
-		auto result = lorenzSwapChain.acquireNextImage(&imageIndex);
+		auto result = lorenzSwapChain->acquireNextImage(&imageIndex);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			recreateSwapChain(); 
+			return;
+		}
 		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
 			throw std::runtime_error("Failed to acquire swapchain image");
 		}
 
-		result = lorenzSwapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+		recordCommandBuffer(imageIndex);
+		result = lorenzSwapChain->submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || lorenzWindow.wasWindowResized())
+		{
+			lorenzWindow.resetWindowResizedFlag(); 
+			recreateSwapChain();
+			return;
+		}
 		if (result != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to present swapchain image");

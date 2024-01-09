@@ -2,6 +2,7 @@
   application.cpp
   device.cpp
   main.cpp
+  model.cpp
   swap_chain.cpp
   pipeline.cpp
   window.cpp
