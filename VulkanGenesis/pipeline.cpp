@@ -136,7 +136,7 @@ namespace Lorenz {
 		configInfo.viewportInfo.viewportCount = 1;
 		configInfo.viewportInfo.pViewports = nullptr;
 		configInfo.viewportInfo.scissorCount = 1;
-		configInfo.viewportInfo.pScissors =nullptr;
+		configInfo.viewportInfo.pScissors = nullptr;
 
 		configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		configInfo.rasterizationInfo.depthClampEnable = VK_FALSE;

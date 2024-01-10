@@ -39,6 +39,12 @@
     <ClCompile Include="object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="render_engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="render_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="window.h">
@@ -60,6 +66,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render_engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "window.h"
-#include "pipeline.h"
 #include "device.h"
-#include "swap_chain.h"
 #include "model.h"
 #include "object.h"
+#include "render_engine.h"
+#include "render_system.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -34,21 +34,11 @@ namespace Lorenz {
 
 	private:
 		void loadObjects();
-		void createPipelineLayout();
-		void createPipeline();
-		void createCommandBuffers();
-		void freeCommandBuffers();
-		void drawFrame();
-		void recreateSwapChain();
-		void recordCommandBuffer(int imageIndex);
-		void renderObjects(VkCommandBuffer commandBuffer);
 
 		LorenzWindow lorenzWindow{ WIDTH, HEIGHT, "Hello World!" };
 		LorenzDevice lorenzDevice{ lorenzWindow };
-		std::unique_ptr<LorenzSwapChain> lorenzSwapChain;
-		std::unique_ptr<Pipeline> lorenzPipeline;
-		VkPipelineLayout pipelineLayout;
-		std::vector<VkCommandBuffer> commandBuffers;
-		std::vector<Object> Objects;
+		Renderer lorenzRenderer{ lorenzWindow, lorenzDevice };
+
+		std::vector<Object> objects;
 	};
 }	// Namespace Lorenz
