@@ -6,6 +6,10 @@
 #include "swap_chain.h"
 #include "model.h"
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+
 // std
 #include <memory>
 #include <stdexcept>
