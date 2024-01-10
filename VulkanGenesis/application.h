@@ -5,10 +5,12 @@
 #include "device.h"
 #include "swap_chain.h"
 #include "model.h"
+#include "object.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 // std
 #include <memory>
@@ -31,7 +33,7 @@ namespace Lorenz {
 		void run();
 
 	private:
-		void loadModels();
+		void loadObjects();
 		void createPipelineLayout();
 		void createPipeline();
 		void createCommandBuffers();
@@ -39,6 +41,7 @@ namespace Lorenz {
 		void drawFrame();
 		void recreateSwapChain();
 		void recordCommandBuffer(int imageIndex);
+		void renderObjects(VkCommandBuffer commandBuffer);
 
 		LorenzWindow lorenzWindow{ WIDTH, HEIGHT, "Hello World!" };
 		LorenzDevice lorenzDevice{ lorenzWindow };
@@ -46,6 +49,6 @@ namespace Lorenz {
 		std::unique_ptr<Pipeline> lorenzPipeline;
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
-		std::unique_ptr<Model> lorenzModel;
+		std::vector<Object> Objects;
 	};
 }	// Namespace Lorenz

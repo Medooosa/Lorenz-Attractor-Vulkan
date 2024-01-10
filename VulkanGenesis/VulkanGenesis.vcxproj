@@ -151,6 +151,7 @@
     <ClCompile Include="device.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="object.cpp" />
     <ClCompile Include="swap_chain.cpp" />
     <ClCompile Include="pipeline.cpp" />
     <ClCompile Include="window.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="application.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="object.h" />
     <ClInclude Include="swap_chain.h" />
     <ClInclude Include="pipeline.h" />
     <ClInclude Include="window.h" />
