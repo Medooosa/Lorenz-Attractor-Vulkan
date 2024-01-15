@@ -34,10 +34,10 @@ namespace Lorenz {
 		Application &operator=(const Application &) = delete;
 
 		void run();
-		glm::vec3 lorenz(float sigma, float rho, float beta);
+		void startLorenzAttractor(float sigma, float rho, float beta);
 
 	private:
-		void loadObjects();
+		void loadObjects(glm::vec3 pos);
 
 		LorenzWindow lorenzWindow{ WIDTH, HEIGHT, "Hello World!" };
 		LorenzDevice lorenzDevice{ lorenzWindow };

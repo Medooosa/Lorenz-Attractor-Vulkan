@@ -4,7 +4,9 @@ namespace Lorenz {
 
 	Application::Application()
 	{
-		loadObjects();
+		float z = 8.f / 3.f;
+		startLorenzAttractor(10, 28, z);
+		//loadObjects(glm::vec3{ 0.f, 0.f, 2.5f });
 	}
 
 	Application::~Application()
@@ -45,24 +47,51 @@ namespace Lorenz {
 				lorenzRenderer.endSwapChainRenderPass(commandBuffer);
 				lorenzRenderer.endFrame();
 			}
+
+			//loadObjects();
 		}
+
+
 
 		vkDeviceWaitIdle(lorenzDevice.device());
 	}
 
-	glm::vec3 Application::lorenz(float sigma, float rho, float beta)
+	void Application::startLorenzAttractor(float sigma, float rho, float beta)
 	{
+		float timeStep = 0.01;
+		int iterationCount = 5000;
 
+		glm::vec3 start{
+		0.1f, 
+		0.f, 
+		0.f
+		};
+
+		glm::vec3 nextDot{};
+
+		for (int i = 0; i < iterationCount; i++)
+		{
+			nextDot.x = start.x + timeStep * sigma * (start.y - start.x);
+			nextDot.y = start.y + timeStep * (start.x * ( rho - start.z) - start.y);
+			nextDot.z = start.z + timeStep * (start.x * start.y - beta * start.z);
+
+			loadObjects(nextDot);
+
+			start.x = nextDot.x;
+			start.y = nextDot.y;
+			start.z = nextDot.z;
+		}
 	}
 
-	void Application::loadObjects()
+	void Application::loadObjects(glm::vec3 pos)
 	{
-        std::shared_ptr<Model> lorenzModel = Model::createModelFromFile(lorenzDevice, "models/smooth_vase.obj");
+        std::shared_ptr<Model> lorenzModel = Model::createModelFromFile(lorenzDevice, "models/cube.obj");
         auto cube = Object::createObject();
         cube.model = lorenzModel;
 		// Translation is the position of the object. Keep in mind that the Y-axis is reversed.
-        cube.transform.translation = { .0f, 1.0f, 2.5f };
-        cube.transform.scale = glm::vec3(3.f);
+		//cube.transform.translation = { .0f, .0f, 2.5f };
+		cube.transform.translation = { pos };
+        cube.transform.scale = glm::vec3(0.01f);
         objects.push_back(std::move(cube));
 	}
 
