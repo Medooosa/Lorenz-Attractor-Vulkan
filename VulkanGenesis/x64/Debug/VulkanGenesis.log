@@ -1,5 +1,6 @@
 ﻿  Press any key to continue . . . 
   application.cpp
 C:\Users\jurst\Documents\GitHub\Lorenz-Attractor-Vulkan\VulkanGenesis\application.cpp(61,24): warning C4305: 'initializing': truncation from 'double' to 'float'
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   VulkanGenesis.vcxproj -> C:\Users\jurst\Documents\GitHub\Lorenz-Attractor-Vulkan\x64\Debug\VulkanGenesis.exe
   Press any key to continue . . . 

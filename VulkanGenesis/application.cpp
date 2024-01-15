@@ -85,13 +85,13 @@ namespace Lorenz {
 
 	void Application::loadObjects(glm::vec3 pos)
 	{
-        std::shared_ptr<Model> lorenzModel = Model::createModelFromFile(lorenzDevice, "models/cube.obj");
+        std::shared_ptr<Model> lorenzModel = Model::createModelFromFile(lorenzDevice, "models/Red_Triangular_Pyramid.obj");
         auto cube = Object::createObject();
         cube.model = lorenzModel;
 		// Translation is the position of the object. Keep in mind that the Y-axis is reversed.
 		//cube.transform.translation = { .0f, .0f, 2.5f };
 		cube.transform.translation = { pos };
-        cube.transform.scale = glm::vec3(0.01f);
+        cube.transform.scale = glm::vec3(3.f);
         objects.push_back(std::move(cube));
 	}
 
