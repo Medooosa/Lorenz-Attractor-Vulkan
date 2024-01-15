@@ -531,4 +531,4 @@ void LorenzDevice::createImageWithInfo(
   }
 }
 
-}  // namespace lve
+}  // namespace Lorenz

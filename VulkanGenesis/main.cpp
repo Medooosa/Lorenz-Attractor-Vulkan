@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cstdlib>
 
+// Parts of this project were adapted from https://vulkan-tutorial.com and Brendan Galea's vulkan game engine tutorial.
+
 int main() 
 {
 	Lorenz::Application app{};

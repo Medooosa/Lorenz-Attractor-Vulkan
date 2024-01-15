@@ -23,6 +23,7 @@ namespace Lorenz {
 		Renderer& operator=(const Renderer&) = delete;
 
 		VkRenderPass getSwapChainRenderPass() const { return lorenzSwapChain->getRenderPass(); }
+		float getAspectRatio() const { return lorenzSwapChain->extentAspectRatio(); }
 		bool isFrameInProgress() const { return isFrameStarted; }
 
 		VkCommandBuffer getCommandBuffer() const {

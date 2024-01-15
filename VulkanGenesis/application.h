@@ -6,6 +6,8 @@
 #include "object.h"
 #include "render_engine.h"
 #include "render_system.h"
+#include "camera.h"
+#include "user_input_controller.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -16,6 +18,7 @@
 #include <memory>
 #include <stdexcept>
 #include <array>
+#include <chrono>
 
 namespace Lorenz {
 
@@ -31,6 +34,7 @@ namespace Lorenz {
 		Application &operator=(const Application &) = delete;
 
 		void run();
+		glm::vec3 lorenz(float sigma, float rho, float beta);
 
 	private:
 		void loadObjects();
@@ -40,5 +44,7 @@ namespace Lorenz {
 		Renderer lorenzRenderer{ lorenzWindow, lorenzDevice };
 
 		std::vector<Object> objects;
+
+		const float MAX_FRAME_TIME = 0.1f;
 	};
 }	// Namespace Lorenz

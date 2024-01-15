@@ -4,6 +4,7 @@
 #include "device.h"
 #include "model.h"
 #include "object.h"
+#include "camera.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -26,7 +27,7 @@ namespace Lorenz {
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
 
-		void renderObjects(VkCommandBuffer commandBuffer, std::vector<Object> &Objects);
+		void renderObjects(VkCommandBuffer commandBuffer, std::vector<Object> &Objects, const Camera &camera);
 
 	private:
 		void createPipelineLayout();
