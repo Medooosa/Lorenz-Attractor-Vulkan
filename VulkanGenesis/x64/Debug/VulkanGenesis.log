@@ -1,6 +1,6 @@
-﻿  Press any key to continue . . . 
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (VulkanGenesis.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Press any key to continue . . . 
   application.cpp
-C:\Users\jurst\Documents\GitHub\Lorenz-Attractor-Vulkan\VulkanGenesis\application.cpp(61,24): warning C4305: 'initializing': truncation from 'double' to 'float'
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  VulkanGenesis.vcxproj -> C:\Users\jurst\Documents\GitHub\Lorenz-Attractor-Vulkan\x64\Debug\VulkanGenesis.exe
+C:\Users\jurst\Documents\GitHub\Lorenz-Attractor-Vulkan\VulkanGenesis\application.cpp(86,24): warning C4305: 'initializing': truncation from 'double' to 'float'
+  VulkanGenesis.vcxproj -> C:\Users\jurst\Documents\GitHub\Lorenz-Attractor-Vulkan\x64\Debug\Lorenz_Vulkan.exe
   Press any key to continue . . . 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "device.h"
+#include "uniform_buffer.h"
 #include "utils.h"
 
 #define GLM_FORCE_RADIANS
@@ -64,14 +65,12 @@ namespace Lorenz
 
 		LorenzDevice& lorenzDevice;
 
-		VkBuffer vertexBuffer;
-		VkDeviceMemory vertexBufferMemory;
+		std::unique_ptr<LorenzBuffer> vertexBuffer;
 		uint32_t vertexCount;
 
 		bool hasIndexBuffer = false; 
 
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexBufferMemory;
+		std::unique_ptr<LorenzBuffer> indexBuffer;
 		uint32_t indexCount;
 	};
 

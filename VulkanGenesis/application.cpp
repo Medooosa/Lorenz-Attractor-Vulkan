@@ -6,7 +6,7 @@ namespace Lorenz {
 	{
 		float z = 8.f / 3.f;
 		startLorenzAttractor(10, 28, z);
-		//loadObjects(glm::vec3{ 0.f, 0.f, 2.5f });
+		//loadObject();
 	}
 
 	Application::~Application()
@@ -14,6 +14,18 @@ namespace Lorenz {
 	}
 
 	void Application::run() {
+
+		std::vector<std::unique_ptr<LorenzBuffer>> uboBuffers(LorenzSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < uboBuffers.size(); i++) {
+			uboBuffers[i] = std::make_unique<LorenzBuffer>(
+				lorenzDevice,
+				sizeof(UniBuffer),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+			uboBuffers[i]->map();
+		}
+
 		RenderSystem renderSystem(lorenzDevice, lorenzRenderer.getSwapChainRenderPass());
         Camera camera{};
         //camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
@@ -38,12 +50,27 @@ namespace Lorenz {
 
             float aspect = lorenzRenderer.getAspectRatio();
             //camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 200.f);
 
 			if (auto commandBuffer = lorenzRenderer.beginFrame())
 			{
+				int frameIndex = lorenzRenderer.getFrameIndex();
+				FrameInfo frameInfo{
+					frameIndex,
+					frameTime,
+					commandBuffer,
+					camera
+				};
+
+				// Updating
+				UniBuffer ubo{};
+				ubo.projectionView = camera.getProjection() * camera.getView();
+				uboBuffers[frameIndex]->writeToBuffer(&ubo);
+				uboBuffers[frameIndex]->flush();
+
+				// Rendering
 				lorenzRenderer.beginSwapChainRenderPass(commandBuffer);
-				renderSystem.renderObjects(commandBuffer, objects, camera);
+				renderSystem.renderObjects(frameInfo, objects);
 				lorenzRenderer.endSwapChainRenderPass(commandBuffer);
 				lorenzRenderer.endFrame();
 			}
@@ -51,15 +78,13 @@ namespace Lorenz {
 			//loadObjects();
 		}
 
-
-
 		vkDeviceWaitIdle(lorenzDevice.device());
 	}
 
 	void Application::startLorenzAttractor(float sigma, float rho, float beta)
 	{
 		float timeStep = 0.01;
-		int iterationCount = 5000;
+		int iterationCount = 200;
 
 		glm::vec3 start{
 		0.1f, 
@@ -90,9 +115,22 @@ namespace Lorenz {
         cube.model = lorenzModel;
 		// Translation is the position of the object. Keep in mind that the Y-axis is reversed.
 		//cube.transform.translation = { .0f, .0f, 2.5f };
-		cube.transform.translation = { pos };
-        cube.transform.scale = glm::vec3(3.f);
+		cube.transform.translation = {pos.x, -pos.z, pos.y };
+        cube.transform.scale = glm::vec3(5.f);
         objects.push_back(std::move(cube));
+	}
+
+	// TODO: TEMPORARY, REMOVE WHEN DONE
+	void Application::loadObject()
+	{
+		std::shared_ptr<Model> lorenzModel = Model::createModelFromFile(lorenzDevice, "models/smooth_vase.obj");
+		auto cube = Object::createObject();
+		cube.model = lorenzModel;
+		// Translation is the position of the object. Keep in mind that the Y-axis is reversed.
+		//cube.transform.translation = { .0f, .0f, 2.5f };
+		cube.transform.translation = { 0.f, 0.f, 2.5f };
+		cube.transform.scale = glm::vec3(2.f);
+		objects.push_back(std::move(cube));
 	}
 
 }	// Namespace Lorenz

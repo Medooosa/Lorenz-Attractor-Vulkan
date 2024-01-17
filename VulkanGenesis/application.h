@@ -19,8 +19,15 @@
 #include <stdexcept>
 #include <array>
 #include <chrono>
+#include <numeric>
 
 namespace Lorenz {
+
+	struct UniBuffer
+	{
+		glm::mat4 projectionView{ 1.f };
+		glm::vec3 lightDirection = glm::normalize(glm::vec3(1.f, -3.f, -1.f));
+	};
 
 	class Application {
 	public:
@@ -38,6 +45,8 @@ namespace Lorenz {
 
 	private:
 		void loadObjects(glm::vec3 pos);
+		void loadObject();
+
 
 		LorenzWindow lorenzWindow{ WIDTH, HEIGHT, "Hello World!" };
 		LorenzDevice lorenzDevice{ lorenzWindow };
