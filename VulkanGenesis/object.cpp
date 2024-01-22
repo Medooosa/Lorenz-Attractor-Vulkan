@@ -64,5 +64,15 @@ namespace Lorenz {
 		};
 	}
 
+	Object Object::makePointLight(float intensity, float radius, glm::vec3 color)
+	{
+		Object pLightObj = Object::createObject();
+		pLightObj.color = color;
+		pLightObj.transform.scale.x = radius;
+		pLightObj.pointLight = std::make_unique<PointLightComponent>();
+		pLightObj.pointLight->lightIntensity = intensity;
+		return pLightObj;
+	}
+
 
 }

@@ -2,11 +2,17 @@
 
 namespace Lorenz {
 
+
+
 	Application::Application()
 	{
-		float z = 8.f / 3.f;
-		startLorenzAttractor(10, 28, z);
-		//loadObject();
+		descriptorPool = LorenzDescriptorPool::Builder(lorenzDevice)
+			.setMaxSets(LorenzSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LorenzSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.build();
+		//float z = 8.f / 3.f;
+		//startLorenzAttractor(10, 28, z);
+		loadObject();
 	}
 
 	Application::~Application()
@@ -26,7 +32,29 @@ namespace Lorenz {
 			uboBuffers[i]->map();
 		}
 
-		RenderSystem renderSystem(lorenzDevice, lorenzRenderer.getSwapChainRenderPass());
+		auto descriptorSetLayout = LorenzDescriptorSetLayout::Builder(lorenzDevice)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			.build();
+
+		std::vector<VkDescriptorSet> descriptorSets(LorenzSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < descriptorSets.size(); i++)
+		{
+			auto bufferInfo = uboBuffers[i]->descriptorInfo();
+			LorenzDescriptorWriter(*descriptorSetLayout, *descriptorPool)
+				.writeBuffer(0, &bufferInfo)
+				.build(descriptorSets[i]);
+		}
+
+		RenderSystem RenderSystem{
+			lorenzDevice,
+			lorenzRenderer.getSwapChainRenderPass(),
+			descriptorSetLayout->getDescriptorSetLayout()};
+
+		PointLightSys PointLights{
+			lorenzDevice,
+			lorenzRenderer.getSwapChainRenderPass(),
+			descriptorSetLayout->getDescriptorSetLayout()};
+
         Camera camera{};
         //camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
         camera.setViewTarget(glm::vec3(-1.f, -20.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
@@ -59,18 +87,23 @@ namespace Lorenz {
 					frameIndex,
 					frameTime,
 					commandBuffer,
-					camera
+					camera,
+					descriptorSets[frameIndex],
+					objects
 				};
 
 				// Updating
 				UniBuffer ubo{};
-				ubo.projectionView = camera.getProjection() * camera.getView();
+				ubo.projection = camera.getProjection();
+				ubo.view = camera.getView();
+				PointLights.update(frameInfo, ubo);
 				uboBuffers[frameIndex]->writeToBuffer(&ubo);
 				uboBuffers[frameIndex]->flush();
 
 				// Rendering
 				lorenzRenderer.beginSwapChainRenderPass(commandBuffer);
-				renderSystem.renderObjects(frameInfo, objects);
+				RenderSystem.renderObjects(frameInfo);
+				PointLights.render(frameInfo);
 				lorenzRenderer.endSwapChainRenderPass(commandBuffer);
 				lorenzRenderer.endFrame();
 			}
@@ -84,7 +117,8 @@ namespace Lorenz {
 	void Application::startLorenzAttractor(float sigma, float rho, float beta)
 	{
 		float timeStep = 0.01;
-		int iterationCount = 200;
+		// TODO: For every 100 or so iterations, spawn a point light.
+		int iterationCount = 1000;
 
 		glm::vec3 start{
 		0.1f, 
@@ -105,6 +139,12 @@ namespace Lorenz {
 			start.x = nextDot.x;
 			start.y = nextDot.y;
 			start.z = nextDot.z;
+
+			//if (iterationCount % 100 == 0)
+			//{
+			//	auto pointLight = Object::makePointLight(0.2f);
+			//	objects.emplace(pointLight.getId(), std::move(pointLight));
+			//}
 		}
 	}
 
@@ -117,7 +157,11 @@ namespace Lorenz {
 		//cube.transform.translation = { .0f, .0f, 2.5f };
 		cube.transform.translation = {pos.x, -pos.z, pos.y };
         cube.transform.scale = glm::vec3(5.f);
-        objects.push_back(std::move(cube));
+        objects.emplace(cube.getId(), std::move(cube));
+
+		auto pointLight = Object::makePointLight(0.2f);
+		objects.emplace(pointLight.getId(), std::move(pointLight));
+
 	}
 
 	// TODO: TEMPORARY, REMOVE WHEN DONE
@@ -128,9 +172,34 @@ namespace Lorenz {
 		cube.model = lorenzModel;
 		// Translation is the position of the object. Keep in mind that the Y-axis is reversed.
 		//cube.transform.translation = { .0f, .0f, 2.5f };
-		cube.transform.translation = { 0.f, 0.f, 2.5f };
+		cube.transform.translation = { 0.f, 0.f, 0.5f };
 		cube.transform.scale = glm::vec3(2.f);
-		objects.push_back(std::move(cube));
-	}
+		objects.emplace(cube.getId(), std::move(cube));
 
+		//auto pointLight = Object::makePointLight(0.2f);
+		//pointLight.color = glm::vec3(1.f, .1f, .1f);
+		//objects.emplace(pointLight.getId(), std::move(pointLight));
+
+		std::vector<glm::vec3> lightColors
+		{
+			 {1.f, .1f, .1f},
+			 {.1f, .1f, 1.f},
+			 {.1f, 1.f, .1f},
+			 {1.f, 1.f, .1f},
+			 {.1f, 1.f, 1.f},
+			 {.1f, 1.f, 1.f},
+			 {.1f, 1.f, 1.f},
+			 {.1f, 1.f, 1.f},
+			 {1.f, 1.f, 1.f}  
+		};
+
+		for (int i = 0; i < lightColors.size(); i++)
+		{
+			auto pointLight = Object::makePointLight(0.2f);
+			pointLight.color = lightColors[i];
+			auto rotateLight = glm::rotate(glm::mat4(1.f), (i * glm::two_pi<float>()) / lightColors.size(), { 0.f, -1.f, 0.f });
+			pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
+			objects.emplace(pointLight.getId(), std::move(pointLight));
+		}
+	}
 }	// Namespace Lorenz

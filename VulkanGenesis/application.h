@@ -6,8 +6,10 @@
 #include "object.h"
 #include "render_engine.h"
 #include "render_system.h"
+#include "point_light.h"
 #include "camera.h"
 #include "user_input_controller.h"
+#include "descriptor.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -22,12 +24,6 @@
 #include <numeric>
 
 namespace Lorenz {
-
-	struct UniBuffer
-	{
-		glm::mat4 projectionView{ 1.f };
-		glm::vec3 lightDirection = glm::normalize(glm::vec3(1.f, -3.f, -1.f));
-	};
 
 	class Application {
 	public:
@@ -52,7 +48,8 @@ namespace Lorenz {
 		LorenzDevice lorenzDevice{ lorenzWindow };
 		Renderer lorenzRenderer{ lorenzWindow, lorenzDevice };
 
-		std::vector<Object> objects;
+		std::unique_ptr<LorenzDescriptorPool> descriptorPool{};
+		Object::Map objects;
 
 		const float MAX_FRAME_TIME = 0.1f;
 	};

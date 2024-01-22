@@ -54,6 +54,12 @@
     <ClCompile Include="uniform_buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="descriptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="point_light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="window.h">
@@ -101,6 +107,12 @@
     <ClInclude Include="frame_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="descriptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="point_light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\simple_shader.vert" />
@@ -108,5 +120,7 @@
     <None Include="shaders\compile.bat">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="shaders\point_light.vert" />
+    <None Include="shaders\point_light.frag" />
   </ItemGroup>
 </Project>

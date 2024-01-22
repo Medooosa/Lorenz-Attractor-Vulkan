@@ -22,16 +22,16 @@ namespace Lorenz {
 	class RenderSystem {
 	public:
 
-		RenderSystem(LorenzDevice & device, VkRenderPass renderPass);
+		RenderSystem(LorenzDevice & device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
 
-		void renderObjects(FrameInfo& frameInfo, std::vector<Object> &Objects);
+		void renderObjects(FrameInfo& frameInfo);
 
 	private:
-		void createPipelineLayout();
+		void createPipelineLayout(VkDescriptorSetLayout descriptorSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 
 		LorenzDevice &lorenzDevice;

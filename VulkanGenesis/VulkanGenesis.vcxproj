@@ -150,10 +150,12 @@
   <ItemGroup>
     <ClCompile Include="application.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="descriptor.cpp" />
     <ClCompile Include="device.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="object.cpp" />
+    <ClCompile Include="point_light.cpp" />
     <ClCompile Include="render_engine.cpp" />
     <ClCompile Include="render_system.cpp" />
     <ClCompile Include="swap_chain.cpp" />
@@ -165,10 +167,12 @@
   <ItemGroup>
     <ClInclude Include="application.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="descriptor.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="frame_info.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="object.h" />
+    <ClInclude Include="point_light.h" />
     <ClInclude Include="render_engine.h" />
     <ClInclude Include="render_system.h" />
     <ClInclude Include="swap_chain.h" />
@@ -181,6 +185,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\compile.bat" />
+    <None Include="shaders\point_light.frag" />
+    <None Include="shaders\point_light.vert" />
     <None Include="shaders\simple_shader.frag" />
     <None Include="shaders\simple_shader.vert" />
   </ItemGroup>
