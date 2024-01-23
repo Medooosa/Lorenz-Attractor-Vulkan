@@ -3,9 +3,21 @@
   application.cpp
 C:\Users\jurst\Documents\GitHub\Lorenz-Attractor-Vulkan\VulkanGenesis\application.cpp(120,24): warning C4305: 'initializing': truncation from 'double' to 'float'
   camera.cpp
+  descriptor.cpp
+C:\Users\jurst\Documents\GitHub\Lorenz-Attractor-Vulkan\VulkanGenesis\descriptor.cpp(189,100): warning C4267: 'argument': conversion from 'size_t' to 'uint32_t', possible loss of data
+  device.cpp
   main.cpp
+  model.cpp
+  object.cpp
   point_light.cpp
+  render_engine.cpp
   render_system.cpp
+  swap_chain.cpp
+  pipeline.cpp
+  uniform_buffer.cpp
+  user_input_controller.cpp
+  window.cpp
   Generating Code...
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   VulkanGenesis.vcxproj -> C:\Users\jurst\Documents\GitHub\Lorenz-Attractor-Vulkan\x64\Debug\Lorenz_Vulkan.exe
   Press any key to continue . . . 
